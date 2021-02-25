@@ -47,10 +47,14 @@ def gauss_solve(a, n):  # Функция решения методом Гаус�
 
 def main():
     try:
-        a = count_a(7)
+        var = input("Введите вариант: ")
+        var = int(var)
+        a = count_a(var)
         gauss_solve(a.copy(), 5)
     except ZeroDivisionError:
         print("Деление на ноль!")
+    except ValueError:
+        print("Введите число!")
 
 
 main()

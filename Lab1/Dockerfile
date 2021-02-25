@@ -1,5 +1,6 @@
 FROM python:3.8-slim-buster
-WORKDIR Homework/Isp/Lab1
+WORKDIR /usr/src/Lab1
+COPY requirements.txt .
+RUN ["pip3", "install", "-r", "requirements.txt"]
 COPY . .
-CMD ["main.py"]
-ENTRYPOINT ["python3"]
+CMD ["python3", "main.py"]
