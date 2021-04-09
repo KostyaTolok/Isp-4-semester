@@ -1,0 +1,54 @@
+import argparse
+import configparser
+from log.logger import get_logger
+from serializer_factory.serializer_factory import SerializerFactory
+from _json_.json_serializer import JsonValidationError
+import os
+
+logger = get_logger(__name__)
+
+
+def parse(file_path: str, new_format: str):
+    factory = SerializerFactory()
+
+    if not file_path:
+        raise ValueError("File path isn't specified")
+    elif not new_format:
+        raise ValueError("New format isn't specified")
+    elif not os.path.exists(file_path):
+        raise ValueError(f"{file_path} doesn't exist")
+
+    file_name, file_extension = os.path.splitext(str(file_path))
+    file_extension = file_extension.replace('.', '')
+
+    serializer = factory.get_serializer(file_extension)
+    obj = serializer.load(file_path)
+    serializer = factory.get_serializer(new_format)
+    new_file_name = file_name + '.' + new_format
+    serializer.dump(obj, new_file_name)
+
+    logger.info(f"Successfully parsed from {file_name} and serialized to {new_file_name}")
+
+
+def main():
+    try:
+        parser = argparse.ArgumentParser(description="Serialize and parse Json\\Yaml\\Toml files")
+        parser.add_argument("--fp", action="store", dest="file_path", help="configure file path")
+        parser.add_argument("--nf", action="store", dest="new_format", help="configure new format of file")
+        parser.add_argument("--cfg", action="store", dest="cfg_file", help="set configuration file")
+        args = parser.parse_args()
+        if args.cfg_file is not None:
+            config = configparser.ConfigParser()
+            config.read(args.cfg_file)
+            parse(config["format"]["file_path"], config["format"]["new_format"])
+        else:
+            parse(args.file_path, args.new_format)
+
+    except JsonValidationError as error:
+        logger.warning(f"Json validation error: {error}")
+    except ValueError as error:
+        logger.warning(error)
+
+
+main()
+
