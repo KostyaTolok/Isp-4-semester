@@ -2,10 +2,10 @@ import pytest
 from serializer_factory.serializer_factory import SerializerFactory
 from student import *
 
-
 factory = SerializerFactory()
 
 name2 = "Slava"
+arg2 = 4
 
 
 def function(name):
@@ -18,10 +18,12 @@ def do_test_obj(form: str):
     obj = serializer.loads(serializer.dumps(student))
     assert obj.name == student.name
     assert obj.surname == student.surname
+    assert obj.hello(obj) == student.hello()
     serializer.dump(student, "students." + form)
     obj_file = serializer.load("students." + form)
     assert obj_file.name == student.name
     assert obj_file.surname == student.surname
+    assert obj_file.hello(obj) == student.hello()
 
 
 def do_complex_test_obj(form: str):
@@ -39,6 +41,7 @@ def do_complex_test_obj(form: str):
     assert obj.dictionary == student.dictionary
     assert obj.teacher.name == student.teacher.name
     assert obj.teacher.surname == student.teacher.surname
+    assert obj.hello(obj) == student.hello()
     serializer.dump(student, "students." + form)
     obj_file = serializer.load("students." + form)
     assert obj_file.name == student.name
@@ -47,6 +50,7 @@ def do_complex_test_obj(form: str):
     assert obj_file.dictionary == student.dictionary
     assert obj_file.teacher.name == student.teacher.name
     assert obj_file.teacher.surname == student.teacher.surname
+    assert obj_file.hello(obj_file) == student.hello()
 
 
 def do_test_list(form: str):
@@ -56,7 +60,7 @@ def do_test_list(form: str):
     student.dictionary = {"Monday": 12, "Tuesday": 55}
     student.teacher = Student("Vyacheslav", "Zakharchuk")
     student2 = Student("Daniil", "Trukhan")
-    student2.grades = [6, 6, 6]
+    student2.grades = [float("inf"), 1, False]
     obj_list = serializer.loads(serializer.dumps([student, student2]))
     assert obj_list[0].name == student.name
     assert obj_list[0].surname == student.surname
@@ -64,9 +68,11 @@ def do_test_list(form: str):
     assert obj_list[0].dictionary == student.dictionary
     assert obj_list[0].teacher.name == student.teacher.name
     assert obj_list[0].teacher.surname == student.teacher.surname
+    assert obj_list[0].hello(obj_list[0]) == student.hello()
     assert obj_list[1].name == student2.name
     assert obj_list[1].surname == student2.surname
     assert obj_list[1].grades == student2.grades
+    assert obj_list[1].hello(obj_list[1]) == student2.hello()
     serializer.dump([student, student2], "students." + form)
     obj_list_file = serializer.load("students." + form)
     assert obj_list_file[0].name == student.name
@@ -75,15 +81,28 @@ def do_test_list(form: str):
     assert obj_list_file[0].dictionary == student.dictionary
     assert obj_list_file[0].teacher.name == student.teacher.name
     assert obj_list_file[0].teacher.surname == student.teacher.surname
+    assert obj_list_file[0].hello(obj_list_file[0]) == student.hello()
     assert obj_list_file[1].name == student2.name
     assert obj_list_file[1].surname == student2.surname
     assert obj_list_file[1].grades == student2.grades
+    assert obj_list_file[1].hello(obj_list_file[1]) == student2.hello()
 
 
 def do_test_func(form: str):
     serializer = factory.get_serializer(form)
     obj = serializer.loads(serializer.dumps(function))
     assert function("Kostya") == obj("Kostya")
+    serializer.dump(function, "students." + form)
+    obj = serializer.load("students." + form)
+    assert function("Kostya") == obj("Kostya")
+
+
+def do_test_list_func(form: str):
+    function2 = lambda arg1: arg1 ** arg2
+    serializer = factory.get_serializer(form)
+    obj = serializer.loads(serializer.dumps([function, function2]))
+    assert obj[0]("Kostya") == function("Kostya")
+    assert obj[1](3) == function2(3)
 
 
 @pytest.mark.json
@@ -106,6 +125,11 @@ def test_json_func():
     do_test_func("json")
 
 
+@pytest.mark.json
+def test_json_list_func():
+    do_test_list_func("json")
+
+
 @pytest.mark.yaml
 def test_yaml_object():
     do_test_obj("yml")
@@ -126,6 +150,11 @@ def test_yaml_func():
     do_test_func("yml")
 
 
+@pytest.mark.yaml
+def test_yaml_list_func():
+    do_test_list_func("yml")
+
+
 @pytest.mark.toml
 def test_toml_object():
     do_test_obj("toml")
@@ -133,11 +162,6 @@ def test_toml_object():
 
 @pytest.mark.toml
 def test_toml_complex_object():
-    do_complex_test_obj("toml")
-
-
-@pytest.mark.toml
-def test_toml_list():
     do_complex_test_obj("toml")
 
 
@@ -164,3 +188,8 @@ def test_pickle_list():
 @pytest.mark.pickle
 def test_pickle_func():
     do_test_func("pickle")
+
+
+@pytest.mark.pickle
+def test_pickle_list_func():
+    do_test_list_func("pickle")

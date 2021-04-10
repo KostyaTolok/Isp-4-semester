@@ -20,3 +20,6 @@ class Student(object):
     @name.setter
     def name(self, name):
         self.__name = name
+
+    def hello(self):
+        return f"Hello, {self.name}"

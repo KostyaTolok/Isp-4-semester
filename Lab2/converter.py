@@ -1,7 +1,8 @@
 import inspect
 import dis
 import opcode
-from types import FunctionType, LambdaType
+from types import FunctionType, LambdaType, CodeType
+import codecs
 
 STORE_GLOBAL = opcode.opmap['STORE_GLOBAL']
 DELETE_GLOBAL = opcode.opmap['DELETE_GLOBAL']
@@ -27,6 +28,9 @@ def list_to_dict(objects: list or tuple or set):
     elif isinstance(objects, set):
         result.append("__set__")
     for o in objects:
+        if o is None:
+            result.append("None")
+            continue
         result.append(to_dict(o))
     return result
 
@@ -38,31 +42,30 @@ def dict_to_dict(obj: dict):
     return result
 
 
-def class_to_dict(obj: type):
-    result = {"__name__": obj.__name__, "source": inspect.getsource(obj).replace("\"", "\\\"")}
-    return result
-
-
 def func_to_dict(obj):
     result = {"__func__": obj.__name__}
-    f_globals_ref = extract_code_globals(obj.__code__)
-    f_globals = {k: obj.__globals__[k] for k in f_globals_ref if k in obj.__globals__}
-    source = inspect.getsource(obj).strip()
-    result["source"] = source.replace('"', "\\\"").replace("\n", '')
+    globals_keys = get_global_keys(obj.__code__)
+    f_globals = {k: obj.__globals__[k] for k in globals_keys if k in obj.__globals__}
+    for c in obj.__code__.__dir__():
+        if c.startswith("co_"):
+            attr = getattr(obj.__code__, c)
+            if isinstance(attr, bytes):
+                attr = codecs.decode(attr, 'unicode_escape')
+            result[c] = to_dict(attr)
     result["globals"] = f_globals
     return result
 
 
-def extract_code_globals(co):
+def get_global_keys(co):
     names = co.co_names
-    out_names = {names[arg] for _, arg in walk_global_ops(co)}
+    out_names = {names[arg] for arg in walk_global_ops(co)}
     return out_names
 
 
 def walk_global_ops(code):
     for instr in dis.get_instructions(code):
         if instr.opcode in GLOBAL_OPS:
-            yield instr.opcode, instr.arg
+            yield instr.arg
 
 
 def to_dict(obj: object):
@@ -72,8 +75,6 @@ def to_dict(obj: object):
         return list_to_dict(obj)
     elif isinstance(obj, dict):
         return dict_to_dict(obj)
-    elif isinstance(obj, type):
-        return class_to_dict(obj)
     elif hasattr(obj, '__dict__'):
         return object_to_dict(obj)
     else:
@@ -98,6 +99,9 @@ def list_from_dict(obj: list or tuple or set):
 
     for o in obj:
         if o == "__list__" or o == "__tuple__" or o == "__set__":
+            continue
+        if o == "None":
+            result.append(None)
             continue
         result.append(from_dict(o))
 
@@ -126,24 +130,23 @@ def from_dict(obj):
             return obj_from_dict(obj)
         elif '__func__' in obj.keys():
             return func_from_dict(obj)
-        elif '__name__' and 'source' in obj.keys():
-            return class_from_dict(obj)
         else:
             return dict_from_dict(obj)
     else:
         return obj
 
 
-def class_from_dict(obj: dict):
-    classes = {}
-    exec(obj["source"].replace("\\\"", '"'), classes)
-    return classes[obj["__name__"]]
-
-
 def func_from_dict(data):
-    co = compile(data["source"].replace("\\\"", '"'), '<string>', "exec")
-    co = co.co_consts[0]
+    print(codecs.encode(data["co_code"], encoding="raw_unicode_escape"))
+    print(codecs.encode(data["co_lnotab"], encoding="raw_unicode_escape"))
+    co = CodeType(data["co_argcount"], data["co_posonlyargcount"],
+                  data["co_kwonlyargcount"], data["co_nlocals"],
+                  data["co_stacksize"], data["co_flags"],
+                  codecs.encode(data["co_code"], encoding="raw_unicode_escape"), from_dict(data["co_consts"]),
+                  from_dict(data["co_names"]), from_dict(data["co_varnames"]),
+                  data["co_filename"], data["co_name"],
+                  data["co_firstlineno"], codecs.encode(data["co_lnotab"], encoding="raw_unicode_escape"),
+                  from_dict(data["co_freevars"]), from_dict(data["co_cellvars"]))
     data["globals"]["__builtins__"] = __builtins__
-    f = FunctionType(co, data["globals"])
+    f = FunctionType(co, data["globals"], data["co_name"])
     return f
-
