@@ -2,7 +2,7 @@ import codecs
 import inspect
 import re
 from abstract_serializer.abstract_serializer import Serializer
-from converter import get_global_keys
+from converter import extract_global_ops
 from types import FunctionType, CodeType, LambdaType
 
 
@@ -101,8 +101,8 @@ class JsonSerializer(Serializer):
 
         result += self.nesting(level + 1) + f"\"__func__\": \"{obj.__name__}\",\n"
 
-        f_globals_ref = get_global_keys(obj.__code__)
-        f_globals = {k: obj.__globals__[k] for k in f_globals_ref if k in obj.__globals__}
+        f_globals_ref = {obj.__code__.co_names[arg] for arg in extract_global_ops(obj.__code__)}
+        f_globals = {key: obj.__globals__[key] for key in f_globals_ref if key in obj.__globals__}
 
         for c in obj.__code__.__dir__():
             if c.startswith("co_"):

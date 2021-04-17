@@ -44,8 +44,8 @@ def dict_to_dict(obj: dict):
 
 def func_to_dict(obj):
     result = {"__func__": obj.__name__}
-    globals_keys = get_global_keys(obj.__code__)
-    f_globals = {k: obj.__globals__[k] for k in globals_keys if k in obj.__globals__}
+    globals_keys = {obj.__code__.co_names[arg] for arg in extract_global_ops(obj.__code__)}
+    f_globals = {key: obj.__globals__[key] for key in globals_keys if key in obj.__globals__}
     for c in obj.__code__.__dir__():
         if c.startswith("co_"):
             attr = getattr(obj.__code__, c)
@@ -56,13 +56,7 @@ def func_to_dict(obj):
     return result
 
 
-def get_global_keys(co):
-    names = co.co_names
-    out_names = {names[arg] for arg in walk_global_ops(co)}
-    return out_names
-
-
-def walk_global_ops(code):
+def extract_global_ops(code):
     for instr in dis.get_instructions(code):
         if instr.opcode in GLOBAL_OPS:
             yield instr.arg
@@ -137,8 +131,6 @@ def from_dict(obj):
 
 
 def func_from_dict(data):
-    print(codecs.encode(data["co_code"], encoding="raw_unicode_escape"))
-    print(codecs.encode(data["co_lnotab"], encoding="raw_unicode_escape"))
     co = CodeType(data["co_argcount"], data["co_posonlyargcount"],
                   data["co_kwonlyargcount"], data["co_nlocals"],
                   data["co_stacksize"], data["co_flags"],

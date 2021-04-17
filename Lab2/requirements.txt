@@ -1,4 +1,3 @@
 pytomlpp~=0.3.5
 PyYAML~=5.3.1
 pytest~=6.2.2
-toml~=0.10.2

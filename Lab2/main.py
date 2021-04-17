@@ -21,6 +21,9 @@ def parse(file_path: str, new_format: str):
     file_name, file_extension = os.path.splitext(str(file_path))
     file_extension = file_extension.replace('.', '')
 
+    if file_extension == new_format:
+        raise ValueError(f"Old and new formats are same")
+
     serializer = factory.get_serializer(file_extension)
     obj = serializer.load(file_path)
     serializer = factory.get_serializer(new_format)
