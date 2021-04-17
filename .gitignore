@@ -130,3 +130,9 @@ dmypy.json
 
 #Idea
 .idea/
+
+#Formats
+.json
+.yml
+.toml
+.pickle
