@@ -1,8 +1,8 @@
 import codecs
 import inspect
 import re
-from abstract_serializer.abstract_serializer import Serializer
-from converter import extract_global_ops
+from serializers.abstract_serializer.abstract_serializer import Serializer
+from converter.converter import extract_global_ops
 from types import FunctionType, CodeType, LambdaType
 
 

@@ -1,5 +1,5 @@
 import pytest
-from serializer_factory.serializer_factory import SerializerFactory
+from serializers.serializer_factory.serializer_factory import SerializerFactory
 from student import *
 
 factory = SerializerFactory()

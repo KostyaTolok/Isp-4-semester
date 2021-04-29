@@ -1,7 +1,7 @@
 import yaml
-from converter import to_dict, from_dict
+from converter.converter import to_dict, from_dict
 
-from abstract_serializer.abstract_serializer import Serializer
+from serializers.abstract_serializer.abstract_serializer import Serializer
 
 
 class YamlSerializer(Serializer):

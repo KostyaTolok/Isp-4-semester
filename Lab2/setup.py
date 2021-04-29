@@ -1,11 +1,14 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name="Serializers",
-    version='1.0',
+    version='1.0.4',
     author="Kostya Tolok",
-    packages=['_json_.json_serializer', '_yaml_.yaml_serializer', '_toml_.toml_serializer',
-              '_pickle_.pickle_serializer', 'abstract_serializer.abstract_serializer',
-              'serializer_factory.serializer_factory', 'converter'],
-    url="https://github.com/KostyaTolok/Isp-4-semester/tree/main/Lab2"
+    packages=['serializers.json', 'serializers.yaml', 'serializers.toml',
+              'serializers.pickle', 'serializers.abstract_serializer',
+              'serializers.serializer_factory', 'converter', 'log'],
+    install_requires=['pytomlpp==0.3.5', 'PyYAML==5.3.1'],
+    scripts=['serialize'],
+    url="https://github.com/KostyaTolok/Serializers",
+    tests_require=['pytest']
 )

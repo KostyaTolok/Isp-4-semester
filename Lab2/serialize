@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 import argparse
 import configparser
 from log.logger import get_logger
-from serializer_factory.serializer_factory import SerializerFactory
-from _json_.json_serializer import JsonValidationError
+from serializers.serializer_factory.serializer_factory import SerializerFactory
+from serializers.json.json_serializer import JsonValidationError
 import os
 
 logger = get_logger(__name__)
@@ -41,6 +42,8 @@ def main():
         parser.add_argument("--cfg", action="store", dest="cfg_file", help="set configuration file")
         args = parser.parse_args()
         if args.cfg_file is not None:
+            if not os.path.exists(args.cfg_file):
+                raise ValueError(f"Configuration file {args.cfg_file} doesn't exist")
             config = configparser.ConfigParser()
             config.read(args.cfg_file)
             parse(config["format"]["file_path"], config["format"]["new_format"])

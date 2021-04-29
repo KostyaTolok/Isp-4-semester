@@ -1,8 +1,8 @@
-from _json_.json_serializer import JsonSerializer
-from _yaml_.yaml_serializer import YamlSerializer
-from _toml_.toml_serializer import TomlSerializer
-from _pickle_.pickle_serializer import PickleSerializer
-from abstract_serializer.abstract_serializer import Serializer
+from serializers.json.json_serializer import JsonSerializer
+from serializers.yaml.yaml_serializer import YamlSerializer
+from serializers.toml.toml_serializer import TomlSerializer
+from serializers.pickle.pickle_serializer import PickleSerializer
+from serializers.abstract_serializer.abstract_serializer import Serializer
 
 
 class SerializerFactory:
