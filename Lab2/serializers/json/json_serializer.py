@@ -22,7 +22,7 @@ class JsonSerializer(Serializer):
         else:
             result = self.nesting(level) + f"\"{name}\": {{\n"
 
-        result += self.nesting(level + 1) + f"\"class\": \"{obj.__class__.__name__}\""
+        result += self.nesting(level + 1) + f"\"__class__\": \"{obj.__class__.__name__}\""
 
         objects = [p for p in dir(obj) if not p.startswith('__')]
 
@@ -115,9 +115,36 @@ class JsonSerializer(Serializer):
         result += self.nesting(level) + "}"
         return result
 
-    def serialize(self, obj: object, level: int, name="") -> str:
+    def serialize_class(self, obj, level: int, name="") -> str:
+        if name == "":
+            result = self.nesting(level) + "{\n"
+        else:
+            result = self.nesting(level) + f"\"{name}\": {{\n"
+
+        result += self.nesting(level + 1) + f"\"__class_name__\": \"{obj.__name__}\""
+
+        objects = [p for p in dir(obj) if not p.startswith('__')]
+
+        if len(objects) != 0:
+            result += ",\n"
+
+        for prop in objects:
+            result += self.serialize(getattr(obj, prop), level + 1, prop)
+
+            if prop == list(objects)[-1]:
+                result += "\n"
+            else:
+                result += ",\n"
+
+        result += self.nesting(level) + "}"
+
+        return result
+
+    def serialize(self, obj, level: int, name="") -> str:
         if inspect.ismethod(obj) or inspect.isfunction(obj) or isinstance(obj, LambdaType):
             return self.serialize_func(obj, level, name)
+        elif inspect.isclass(obj):
+            return self.serialize_class(obj, level, name)
         elif isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
             return self.serialize_list(obj, level, name)
         elif isinstance(obj, dict):
@@ -161,31 +188,27 @@ class JsonSerializer(Serializer):
             return self.loads(file.read())
 
     def parse_object(self, data: str, pos: int) -> tuple:
-        pos += 1
-        self.validate(data[pos:pos + 9], data[pos:pos + 9] == "\"class\": ")
-        pos += 10
-        class_name_end = data.index("\"", pos)
+        obj_dict, pos = self.parse_dict(data, pos)
 
-        cls = type(data[pos:class_name_end], (), {})
+        cls = type(obj_dict["__class__"], (), {})
         result = cls()
 
-        pos = class_name_end + 2
-
-        while data[pos] != '}':
-            key, pos = self.parse_string(data, pos)
-            pos += 2
-            value, pos = self.parse(data, pos)
-
+        for key, value in obj_dict.items():
             if key != "__class__":
                 setattr(result, key, value)
 
-            if data[pos] == ',':
-                pos += 1
-                self.validate(data[pos], data[pos] != '}')
-            else:
-                self.validate(data[pos], data[pos] == '}')
+        return result, pos
 
-        return result, pos + 1
+    def parse_class(self, data: str, pos: int) -> tuple:
+        class_dict, pos = self.parse_dict(data, pos)
+
+        cls = type(class_dict["__class_name__"], (), {})
+
+        for key, value in class_dict.items():
+            if key != "__class__":
+                setattr(cls, key, value)
+
+        return cls, pos
 
     def parse_dict(self, data: str, pos: int) -> tuple:
         result = {}
@@ -280,6 +303,7 @@ class JsonSerializer(Serializer):
 
     def parse_func(self, data: str, pos: int) -> tuple:
         func_dict, pos = self.parse_dict(data, pos)
+
         co = CodeType(func_dict["co_argcount"], func_dict["co_posonlyargcount"],
                       func_dict["co_kwonlyargcount"], func_dict["co_nlocals"],
                       func_dict["co_stacksize"], func_dict["co_flags"],
@@ -288,8 +312,10 @@ class JsonSerializer(Serializer):
                       func_dict["co_filename"], func_dict["co_name"],
                       func_dict["co_firstlineno"], codecs.encode(func_dict["co_lnotab"], 'raw_unicode_escape'),
                       func_dict["co_freevars"], func_dict["co_cellvars"])
+
         func_dict["globals"]["__builtins__"] = __builtins__
         f = FunctionType(co, func_dict["globals"], func_dict["co_name"])
+
         return f, pos
 
     def parse(self, data: str, pos: int) -> tuple:
@@ -303,7 +329,9 @@ class JsonSerializer(Serializer):
             return self.parse_true(data, pos)
         elif data[pos] == 'f':
             return self.parse_false(data, pos)
-        elif data[pos:pos + 8] == "{\"class\"":
+        elif data[pos:pos + 17] == "{\"__class_name__\"":
+            return self.parse_class(data, pos)
+        elif data[pos:pos + 12] == "{\"__class__\"":
             return self.parse_object(data, pos)
         elif data[pos:pos + 11] == "{\"__func__\"":
             return self.parse_func(data, pos)

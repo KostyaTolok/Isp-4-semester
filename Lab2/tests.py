@@ -14,7 +14,8 @@ def function(name):
 
 def do_test_obj(form: str):
     serializer = factory.get_serializer(form)
-    student = Student("Kostya", "Tolok")
+    student = Student()
+    student.surname = "Tolok"
     obj = serializer.loads(serializer.dumps(student))
     assert obj.name == student.name
     assert obj.surname == student.surname
@@ -28,12 +29,15 @@ def do_test_obj(form: str):
 
 def do_complex_test_obj(form: str):
     serializer = factory.get_serializer(form)
-    student = Student("Kostya", "Tolok")
+    student = Student()
+    student.surname = "Tolok"
     student.grades = [10, 9, 5]
     student.tup = (3, 4, 6)
     student.set = {33, 5, 6}
     student.dictionary = {"Monday": 12, "Tuesday": 55}
-    student.teacher = Student("Vyacheslav", "Zakharchuk")
+    student.teacher = Student()
+    student.teacher.name = "Vyacheslav"
+    student.teacher.surname = "Zakharchuk"
     obj = serializer.loads(serializer.dumps(student))
     assert obj.name == student.name
     assert obj.surname == student.surname
@@ -55,11 +59,15 @@ def do_complex_test_obj(form: str):
 
 def do_test_list(form: str):
     serializer = factory.get_serializer(form)
-    student = Student("Kostya", "Tolok")
+    student = Student()
+    student.surname = "Tolok"
     student.grades = [10, 9, 5]
     student.dictionary = {"Monday": 12, "Tuesday": 55}
-    student.teacher = Student("Vyacheslav", "Zakharchuk")
-    student2 = Student("Daniil", "Trukhan")
+    student.teacher = Student()
+    student.teacher.name = "Vyacheslav"
+    student.teacher.surname = "Zakharchuk"
+    student2 = Student()
+    student2.surname = "Trukhan"
     student2.grades = [float("inf"), 1, False]
     obj_list = serializer.loads(serializer.dumps([student, student2]))
     assert obj_list[0].name == student.name
@@ -105,6 +113,18 @@ def do_test_list_func(form: str):
     assert obj[1](3) == function2(3)
 
 
+def do_test_class(form: str):
+    cls = Student
+    serializer = factory.get_serializer(form)
+    obj = serializer.loads(serializer.dumps(cls))
+    student = Student()
+    student.surname = "Tolok"
+    st = obj()
+    st.surname = "Tolok"
+    assert st.hello() == student.hello()
+    assert st.name == student.name
+
+
 @pytest.mark.json
 def test_json_object():
     do_test_obj("json")
@@ -128,6 +148,11 @@ def test_json_func():
 @pytest.mark.json
 def test_json_list_func():
     do_test_list_func("json")
+
+
+@pytest.mark.json
+def test_json_class():
+    do_test_class("json")
 
 
 @pytest.mark.yaml
@@ -155,6 +180,11 @@ def test_yaml_list_func():
     do_test_list_func("yml")
 
 
+@pytest.mark.yaml
+def test_yaml_class():
+    do_test_class("yml")
+
+
 @pytest.mark.toml
 def test_toml_object():
     do_test_obj("toml")
@@ -168,6 +198,11 @@ def test_toml_complex_object():
 @pytest.mark.toml
 def test_toml_func():
     do_test_func("toml")
+
+
+@pytest.mark.toml
+def test_toml_class():
+    do_test_class("toml")
 
 
 @pytest.mark.pickle
@@ -193,3 +228,8 @@ def test_pickle_func():
 @pytest.mark.pickle
 def test_pickle_list_func():
     do_test_list_func("pickle")
+
+
+@pytest.mark.pickle
+def test_pickle_class():
+    do_test_class("pickle")

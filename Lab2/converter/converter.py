@@ -62,9 +62,20 @@ def extract_global_ops(code):
             yield instr.arg
 
 
+def class_to_dict(obj: object) -> dict:
+    result = {"__class_name__": obj.__name__}
+    props = [p for p in dir(obj) if not p.startswith('__')]
+    for p in props:
+        value = getattr(obj, p)
+        result[p] = to_dict(value)
+    return result
+
+
 def to_dict(obj: object):
     if inspect.ismethod(obj) or inspect.isfunction(obj) or isinstance(obj, LambdaType):
         return func_to_dict(obj)
+    if inspect.isclass(obj):
+        return class_to_dict(obj)
     elif isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
         return list_to_dict(obj)
     elif isinstance(obj, dict):
@@ -116,12 +127,25 @@ def dict_from_dict(obj: dict):
     return result
 
 
+def class_from_dict(obj: dict):
+    cls = type(obj.get("__class_name__"), (), {})
+
+    for key, value in obj.items():
+        if key == '__class__':
+            continue
+        setattr(cls, key, from_dict(value))
+
+    return cls
+
+
 def from_dict(obj):
     if isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
         return list_from_dict(obj)
     elif isinstance(obj, dict):
         if '__class__' in obj.keys():
             return obj_from_dict(obj)
+        elif '__class_name__' in obj.keys():
+            return class_from_dict(obj)
         elif '__func__' in obj.keys():
             return func_from_dict(obj)
         else:

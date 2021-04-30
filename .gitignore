@@ -132,7 +132,13 @@ dmypy.json
 .idea/
 
 #Formats
-.json
-.yml
-.toml
-.pickle
+*.json
+*.yml
+*.toml
+*.pickle
+
+#Other
+dist/
+build/
+a.py
+testing.py
