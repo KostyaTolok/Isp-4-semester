@@ -1,0 +1,19 @@
+.search-bar{
+    margin-right: 1em !important;
+    justify-content: center;
+    width: 1500px;
+    justify-content: space-evenly;
+}
+
+.navbar-brand {
+    font-size: 50pt;
+    padding-left:30px;
+}
+
+.navbar-collapse {
+    justify-content: space-evenly;
+}
+
+.nav-link {
+	margin-right: 1em !important;
+}
