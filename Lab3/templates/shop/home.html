@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}E-Shop{% endblock %}x
+{% block title %}E-Shop{% endblock %}
 
 {% block content %}
     <div class="container">
@@ -7,10 +7,10 @@
             {% for product in products %}
             <div class="col-lg-4 col-md-6 mb-4" style="width: 18rem;">
                 <div class="card h-100">
-                    <a href=""><img class="card-img-top" src="{{ product.image.url }}" alt=""></a>
+                    <a href="{{ product.get_absolute_url }}"><img class="card-img-top" src="{{ product.image.url }}" alt=""></a>
                      <div class="card-body">
                          <h4 class="card-title">{{ product.name }}</h4>
-                         <h5>{{ product.price }}</h5>
+                         <h5>{{ product.price }} BYN</h5>
                      </div>
                 </div>
             </div>
