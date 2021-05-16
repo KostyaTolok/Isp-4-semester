@@ -12,12 +12,16 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('category_detail', kwargs={'slug': self.slug})
+
 
 class Product(models.Model):
+
     category = models.ForeignKey(Category, verbose_name="Категория товара", on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Название товара", max_length=255)
     slug = models.SlugField(unique=True)
-    image = models.ImageField(verbose_name="Изображение товра")
+    image = models.ImageField(verbose_name="Изображение товара")
     description = models.TextField(verbose_name="Описание товара")
     price = models.DecimalField(verbose_name="Цена товара", max_digits=9, decimal_places=2)
 
