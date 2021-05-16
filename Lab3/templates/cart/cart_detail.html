@@ -8,28 +8,37 @@
             <li class="breadcrumb-item active" aria-current="page">Корзина</li>
         </ol>
     </nav>
-    <h3>Моя корзина</h3>
-    <table id="cart" class="table table-hover table-condensed">
-        <thead>
-        <tr>
-            <th scope="col" style="width:30%">Изображение</th>
-            <th scope="col" style="width:20%">Название</th>
-            <th scope="col" style="width:10%">Количество</th>
-            <th scope="col" style="width:20%">Цена</th>
-            <th scope="col" style="width:20%">Общая Цена</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for cart_product in cart.products.all %}
-        <tr>
-            <th scope="row" class="w-10"><img src="{{ cart_product.product.image.url }}" class="img-fluid"></th>
-            <td>{{ cart_product.product.name }}</td>
-            <td>{{ cart_product.quantity }}</td>
-            <td>{{ cart_product.product.price }} BYN</td>
-            <td>{{ cart_product.overall_price }} BYN</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col">
+            <h3>Моя корзина</h3>
+            <table id="cart" class="table table-hover table-condensed">
+                <thead>
+                <tr>
+                    <th scope="col" style="width:30%">Изображение</th>
+                    <th scope="col" style="width:20%">Название</th>
+                    <th scope="col" style="width:10%">Количество</th>
+                    <th scope="col" style="width:20%">Цена</th>
+                    <th scope="col" style="width:20%">Общая Цена</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for cart_product in cart.products.all %}
+                <tr>
+                    <th scope="row" class="w-10"><img src="{{ cart_product.product.image.url }}" class="img-fluid"></th>
+                    <td>{{ cart_product.product.name }}</td>
+                    <td>{{ cart_product.quantity }}</td>
+                    <td>{{ cart_product.product.price }} BYN</td>
+                    <td>{{ cart_product.overall_price }} BYN</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <h3>Информация о корзине: </h3>
+            <h4>Количество товаров в корзине: {{ cart.products_amount }}</h4>
+            <h4>Общая цена: {{ cart.overall_price }}</h4>
+        </div>
+    </div>
 </div>
 {% endblock %}
