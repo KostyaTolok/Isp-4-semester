@@ -35,9 +35,15 @@
                     {% endfor %}
                 </ul>
             </li>
+            {% if user.is_authenticated %}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'cart_detail' %}">Корзина</a>
             </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="">Войти</a>
+            </li>
+            {% endif %}
         </ul>
     </div>
 </nav>
@@ -49,4 +55,9 @@
         integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
         crossorigin="anonymous"></script>
 </body>
+<footer class="bg-light text-center">
+    <div class="text-center p-3">
+        2021 E-shop
+    </div>
+</footer>
 </html>
