@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h3>Регистрация</h3>
+    <p style="color: red">Обязательно - *</p>
+    <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+        {% for field in form %}
+        <p>
+            {{ field.label_tag }}<br>
+            {{ field }}
+            {% if field.field.required %}
+            <small style="color: red">*</small>
+            {% endif %}
+            {% if field.help_text %}
+            <small style="color: grey">{{ field.help_text }}</small>
+            {% endif %}
+            {% for error in field.errors %}
+                <p style="color: red">{{ error }}</p>
+            {% endfor %}
+        </p>
+        {% endfor %}
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <input type="submit" value="Создать аккаунт">
+    </form>
+    <a href="">Войти в аккаунт</a>
+</div>
+{% endblock %}

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.detail import View
 from users.models import User, UserProfile
+from .utilities import update_cart
 from .models import Cart, CartProduct
 from products.models import Product
 from django.http import HttpResponseRedirect
@@ -27,7 +28,7 @@ class AddToCartView(View):
         else:
             cart_product.quantity += 1
             cart_product.save()
-        cart.save()
+        update_cart(cart)
         return HttpResponseRedirect('/cart/')
 
 
@@ -40,8 +41,8 @@ class DeleteFromCartView(View):
             user=cart.user, cart=cart, product=product
         )
         cart.products.remove(cart_product)
-        cart.save()
         cart_product.delete()
+        update_cart(cart)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -56,5 +57,5 @@ class ChangeQuantityInCart(View):
         quantity = int(request.POST.get('quantity'))
         cart_product.quantity = quantity
         cart_product.save()
-        cart.save()
+        update_cart(cart)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

@@ -15,17 +15,6 @@ class Cart(models.Model):
     def __str__(self):
         return f"Корзина пользователя {self.user.email}"
 
-    def save(self, *args, **kwargs):
-        cart_data = self.products.aggregate(models.Sum('overall_price'), models.Sum('quantity'))
-        if cart_data.get('overall_price__sum'):
-            self.overall_price = cart_data['overall_price__sum']
-        else:
-            self.overall_price = 0
-        if cart_data.get('quantity__sum'):
-            self.products_amount = cart_data['quantity__sum']
-        else:
-            self.products_amount = 0
-        super().save(*args, **kwargs)
 
 
 class CartProduct(models.Model):
