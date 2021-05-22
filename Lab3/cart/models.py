@@ -16,7 +16,6 @@ class Cart(models.Model):
         return f"Корзина пользователя {self.user.email}"
 
 
-
 class CartProduct(models.Model):
     user = models.ForeignKey(User, verbose_name="Пользователь", on_delete=models.CASCADE)
     cart = models.ForeignKey(Cart, verbose_name="Корзина", on_delete=models.CASCADE, related_name="related_cart")

@@ -5,13 +5,13 @@
     <nav aria-label="breadcrumb" class="mt-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Главная</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Корзина</li>
+            <li class="breadcrumb-item active" aria-current="page">Заказ</li>
         </ol>
     </nav>
     {% if cart.products.count %}
     <div class="row">
         <div class="col-md-8">
-            <h3>Моя корзина</h3>
+            <h3>Оформление заказа</h3>
             <table id="cart" class="table table-hover table-condensed">
                 <thead>
                 <tr>
@@ -20,7 +20,6 @@
                     <th scope="col" style="width:10%">Количество</th>
                     <th scope="col" style="width:15%">Цена</th>
                     <th scope="col" style="width:15%">Общая Цена</th>
-                    <th scope="col" style="width:10%">Действие</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -28,32 +27,43 @@
                 <tr>
                     <th scope="row" class="w-10"><img src="{{ cart_product.product.image.url }}" class="img-fluid"></th>
                     <td>{{ cart_product.product.name }}</td>
-                    <td>
-                        <form action="{% url 'change_quantity' slug=cart_product.product.slug %}" method="POST">
-                            {% csrf_token %}
-                            <input id="productNumber" type="number" class="form-control" style="width:85px;" min="1"
-                                   max="100" name="quantity" value="{{ cart_product.quantity }}" onchange="this.form.submit()">
-                        </form>
-                    </td>
+                    <td>{{ cart_product.quantity }}</td>
                     <td>{{ cart_product.product.price }} BYN</td>
                     <td>{{ cart_product.overall_price }} BYN</td>
-                    <td><a href="{% url 'delete_from_cart' slug=cart_product.product.slug %}">
-                        <button class="btn btn-danger">Удалить из корзины</button>
-                    </a></td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
         <div class="col-sm-4">
-            <h3>Информация о корзине: </h3>
-            <h4>Количество товаров в корзине: {{ cart.products_amount }}</h4>
-            <h4>Общая цена: {{ cart.overall_price }}</h4>
-            <a href="{% url 'orders:make_order' %}"><button class="btn btn-success">Оформить заказ</button></a>
+            <p style="color: red">Обязательно - *</p>
+            <form method="post" action="{% url 'orders:make_order' %}">
+                {% csrf_token %}
+                {% for field in form %}
+                <p>
+                    {{ field.label_tag }}<br>
+                    {{ field }}
+                    {% if field.field.required %}
+                        <small style="color: red">*</small>
+                    {% endif %}
+                    {% if field.help_text %}
+                        <small style="color: grey">{{ field.help_text }}</small>
+                    {% endif %}
+                </p>
+                {% endfor %}
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <input type="submit" value="Сделать заказ">
+            </form>
         </div>
     </div>
     {% else %}
-    <h3>Корзина пуста</h3>
+    <h3>Пустой заказ</h3>
     {% endif %}
 </div>
 {% endblock %}

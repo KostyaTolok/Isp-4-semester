@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from orders.models import Order
 
 
 class UserManager(BaseUserManager):
@@ -25,7 +26,6 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-
     email = models.EmailField(verbose_name="Email", max_length=40, unique=True)
     login = models.CharField(verbose_name="Логин пользователя", max_length=40)
     is_active = models.BooleanField(default=True)
@@ -56,13 +56,12 @@ class User(AbstractBaseUser):
 
 
 class UserProfile(models.Model):
-
     user = models.OneToOneField(User, verbose_name="Пользователь", on_delete=models.CASCADE)
     address = models.CharField(verbose_name="Адрес", max_length=255, blank=True)
     first_name = models.CharField(verbose_name="Имя пользователя", max_length=40, blank=True)
     last_name = models.CharField(verbose_name="Фамилия пользователя", max_length=40, blank=True)
     phone_number = models.CharField(verbose_name="Номер телефона", max_length=17, blank=True)
+    orders = models.ManyToManyField(Order, verbose_name='Заказы пользователя', blank=True, related_name='related_user')
 
     def __str__(self):
         return self.user.email
-
