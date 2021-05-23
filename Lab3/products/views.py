@@ -6,9 +6,16 @@ from cart.models import Cart, CartProduct
 
 
 class HomeView(View):
-    products = Product.objects.all()
 
     def get(self, request):
+        products = Product.objects.all()
+        return render(request, 'shop/home.html', {'products': products})
+
+
+class SearchView(View):
+
+    def get(self, request):
+        products = Product.objects.filter()
         return render(request, 'shop/home.html', {'products': self.products})
 
 

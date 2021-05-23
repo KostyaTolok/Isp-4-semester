@@ -59,3 +59,10 @@ class SignOutView(View):
     def get(self, request, *args, **kwargs):
         logout(request)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+class ProfileView(View):
+
+    def get(self, request, *args, **kwargs):
+        user_profile = UserProfile.objects.get(user=request.user)
+        return render(request, 'profile/user_profile.html', {'user_profile': user_profile})
