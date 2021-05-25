@@ -50,3 +50,12 @@ class MakeOrderView(View):
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+class CancelOrderView(View):
+
+    def get(self, request, *args, **kwargs):
+        order = Order.objects.get(id=kwargs.get('id'))
+        user_profile = UserProfile.objects.get(user=request.user)
+        user_profile.orders.remove(order)
+        order.delete()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
