@@ -50,6 +50,11 @@
                 </li>
                 {% endfor %}
             </ul>
+            {% if order.status == 'new_order' %}
+            <a href="">
+                <button class="btn btn-danger mt-3">Отменить заказ</button>
+            </a>
+            {% endif %}
         </div>
     </div>
     {% endfor %}

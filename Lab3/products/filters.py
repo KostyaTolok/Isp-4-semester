@@ -1,10 +1,10 @@
 import django_filters
 
-from models import *
+from .models import *
 
 
-class ProductFilter:
+class ProductFilter(django_filters.FilterSet):
 
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ['name']

@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic.detail import View, DetailView
 from .models import Product, Category
 from cart.models import Cart, CartProduct
+from .filters import ProductFilter
 
 
 class HomeView(View):
@@ -14,9 +15,10 @@ class HomeView(View):
 
 class SearchView(View):
 
-    def get(self, request):
-        products = Product.objects.filter()
-        return render(request, 'shop/home.html', {'products': self.products})
+    def post(self, request):
+        search = request.POST['search']
+        products = Product.objects.filter(name__icontains=search)
+        return render(request, 'shop/home.html', {'products': products})
 
 
 class ProductDetailView(DetailView):
