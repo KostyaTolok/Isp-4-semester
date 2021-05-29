@@ -1,20 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
+<div class="container login-container">
     <h3>Вход в аккаунт</h3>
     <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="form-group mt-3">
+            <input id="email" name="email" type="text" class="form-control" placeholder="Email" value="">
+        </div>
+        <div class="form-group mt-1">
+            <input id="password" name="password" type="password" class="form-control" placeholder="Пароль" value=""/>
+        </div>
         {% if messages %}
         <ul class="messages">
             {% for message in messages %}
-                <li>{{ message }}</li>
+            <li>{{ message }}</li>
             {% endfor %}
         </ul>
         {% endif %}
-        <input type="submit" value="Войти">
+        <div class="form-group mt-3">
+            <input type="submit" class="btnSubmit" value="Войти"/>
+        </div>
+        <div class="form-group mt-3">
+            <a href="{% url 'register' %}" class="registerLink">Регистрация</a>
+        </div>
     </form>
-    <a href="{% url 'register' %}">Регистрация</a>
 </div>
 {% endblock %}

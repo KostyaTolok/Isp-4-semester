@@ -5,16 +5,17 @@ from .utilities import update_cart
 from .models import Cart, CartProduct
 from products.models import Product
 from django.http import HttpResponseRedirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class CartView(View):
+class CartView(LoginRequiredMixin, View):
 
     def get(self, request):
         cart_obj = Cart.objects.get(user=request.user)
         return render(request, 'cart/cart_detail.html', {'cart': cart_obj})
 
 
-class AddToCartView(View):
+class AddToCartView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         cart = Cart.objects.get(user=request.user)
@@ -32,7 +33,7 @@ class AddToCartView(View):
         return HttpResponseRedirect('/cart/')
 
 
-class DeleteFromCartView(View):
+class DeleteFromCartView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         cart = Cart.objects.get(user=request.user)
@@ -46,7 +47,7 @@ class DeleteFromCartView(View):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-class ChangeQuantityInCart(View):
+class ChangeQuantityInCart(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         cart = Cart.objects.get(user=request.user)
