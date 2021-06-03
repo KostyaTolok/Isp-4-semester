@@ -7,12 +7,16 @@ from django.contrib import messages
 from cart.models import Cart
 from .models import UserProfile
 from django.contrib.auth.mixins import LoginRequiredMixin
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class SignInView(View):
 
     def get(self, request, *args, **kwargs):
         form = SignInForm()
+        logger.info(f"Loading sign in view")
         return render(request, 'registration/login.html', {'form': form})
 
     def post(self, request, *args, **kwargs):
@@ -23,6 +27,7 @@ class SignInView(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
+                    logger.info(f"User {cleaned_data['email']} signed in")
                     return HttpResponseRedirect(reverse('products:home'))
                 else:
                     messages.error(request, 'Аккунт пользователя неактивен')
@@ -36,6 +41,7 @@ class SignUpView(View):
 
     def get(self, request, *args, **kwargs):
         form = SignUpForm()
+        logger.info(f"Loading sign up view")
         return render(request, 'registration/register.html', {'form': form})
 
     def post(self, request, *args, **kwargs):
@@ -45,6 +51,7 @@ class SignUpView(View):
             cleaned_data = form.cleaned_data
             user = authenticate(email=cleaned_data['email'], password=cleaned_data['password1'])
             login(request, user)
+            logger.info(f"User {cleaned_data['email']} signed up")
             Cart.objects.create(user=user)
             UserProfile.objects.create(user=user, address=cleaned_data.get('address'),
                                        first_name=cleaned_data.get('first_name'),
@@ -59,6 +66,7 @@ class SignOutView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         logout(request)
+        logger.info(f"User {request.user.email} logged out")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -66,4 +74,5 @@ class ProfileView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         user_profile = UserProfile.objects.get(user=request.user)
+        logger.info(f"Loading profile for {request.user.email}")
         return render(request, 'profile/user_profile.html', {'user_profile': user_profile})

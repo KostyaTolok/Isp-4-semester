@@ -6,12 +6,16 @@ from .models import Cart, CartProduct
 from products.models import Product
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CartView(LoginRequiredMixin, View):
 
     def get(self, request):
         cart_obj = Cart.objects.get(user=request.user)
+        logger.info(f"Loading cart view for user {request.user}")
         return render(request, 'cart/cart_detail.html', {'cart': cart_obj})
 
 
@@ -30,6 +34,7 @@ class AddToCartView(LoginRequiredMixin, View):
             cart_product.quantity += 1
             cart_product.save()
         update_cart(cart)
+        logger.info(f"Added product {product.id} to cart for user {request.user}")
         return HttpResponseRedirect('/cart/')
 
 
@@ -44,6 +49,7 @@ class DeleteFromCartView(LoginRequiredMixin, View):
         cart.products.remove(cart_product)
         cart_product.delete()
         update_cart(cart)
+        logger.info(f"Deleted cart product {cart_product.id} from cart for user {request.user}")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -59,4 +65,5 @@ class ChangeQuantityInCart(LoginRequiredMixin, View):
         cart_product.quantity = quantity
         cart_product.save()
         update_cart(cart)
+        logger.info(f"Changed quantity for cart product {cart_product.id} for user {request.user}")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
