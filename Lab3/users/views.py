@@ -65,8 +65,8 @@ class SignUpView(View):
 class SignOutView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
-        logout(request)
         logger.info(f"User {request.user.email} logged out")
+        logout(request)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 

@@ -85,9 +85,6 @@ DATABASES = {
         'OPTIONS': {
             'read_default_file': '/home/upalspolok/Homework/Isp/Lab3/database.cnf',
         },
-        'TEST': {
-            'NAME': "eshopdb",
-        }
     }
 }
 
