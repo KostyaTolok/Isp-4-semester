@@ -3,7 +3,6 @@ from django.http import HttpResponseRedirect
 from django.views.generic.detail import View, DetailView
 from .models import Product, Category
 from cart.models import Cart, CartProduct
-from .filters import ProductFilter
 import logging
 
 logger = logging.getLogger(__name__)
