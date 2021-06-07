@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os.path
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,12 +20,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-xtw@b8%4d#sr_s(8zq@csacr*3qlnlc938uh!w&l@h7ox=7_qj'
+
+env = environ.Env(DEBUG=(bool, False), SECRET_KEY=(str, ''))
+environ.Env.read_env()
+
+# SECRET_KEY = 'django-insecure-xtw@b8%4d#sr_s(8zq@csacr*3qlnlc938uh!w&l@h7ox=7_qj'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [str(e) for e in str(env("ALLOWED_HOSTS")).split()]
 
 # Application definition
 
@@ -82,7 +88,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': '/home/upalspolok/Homework/Isp/Lab3/database.cnf',
+            'read_default_file': os.path.join(BASE_DIR, 'database.cnf'),
         },
     }
 }
