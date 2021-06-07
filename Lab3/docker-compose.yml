@@ -1,0 +1,26 @@
+version: "3.3"
+
+volumes:
+  eshop:
+  eshopdb:
+
+services:
+  eshopdb:
+    image: mysql
+    volumes:
+    - eshopdb:/var/lib/eshopdb
+    environment:
+      MYSQL_DATABASE: 'eshopdb'
+      MYSQL_USER: 'upalspolok'
+      MYSQL_PASSWORD: '123456'
+      MYSQL_ROOT_PASSWORD: '123456'
+    restart: always
+  eshop:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - eshop:/usr/src/eshop
+    ports:
+      - '8000:8000'
+    depends_on:
+      - eshopdb
