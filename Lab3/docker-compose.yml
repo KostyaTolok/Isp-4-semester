@@ -1,26 +1,30 @@
-version: "3.3"
+version: "3.7"
 
 volumes:
-  eshop:
   eshopdb:
+  eshop:
 
 services:
   eshopdb:
-    image: mysql
+    image: mysql:5.7
     volumes:
-    - eshopdb:/var/lib/eshopdb
+    - eshopdb:/var/lib/mysql
+    ports:
+      - '3306'
     environment:
       MYSQL_DATABASE: 'eshopdb'
       MYSQL_USER: 'upalspolok'
       MYSQL_PASSWORD: '123456'
       MYSQL_ROOT_PASSWORD: '123456'
     restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
   eshop:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - eshop:/usr/src/eshop
     ports:
       - '8000:8000'
+    env_file:
+      - shop/.env
     depends_on:
       - eshopdb
