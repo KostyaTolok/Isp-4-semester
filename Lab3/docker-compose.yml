@@ -19,7 +19,7 @@ services:
     restart: always
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
   eshop:
-    image: upalspolok/lab3_eshop:1.0.1
+    image: upalspolok/lab3_eshop:1.0.2
     volumes:
       - eshop:/usr/src/eshop
     ports:

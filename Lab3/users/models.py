@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from orders.models import Order
+import cart.models
 
 
 class UserManager(BaseUserManager):
@@ -21,6 +22,12 @@ class UserManager(BaseUserManager):
 
         user.is_admin = True
         user.save(using=self._db)
+
+        UserProfile.objects.create(user=user, address='',
+                                   first_name='',
+                                   last_name='',
+                                   phone_number='')
+        cart.models.Cart.objects.create(user=user)
 
         return user
 
