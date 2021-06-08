@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.detail import View
-from users.models import User, UserProfile
+from .async_requests import *
+import asyncio
 from .utilities import update_cart
 from .models import Cart, CartProduct
 from products.models import Product
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 class CartView(LoginRequiredMixin, View):
 
     def get(self, request):
-        cart_obj = Cart.objects.get(user=request.user)
+        cart_obj = asyncio.run(get_cart(request.user))
         logger.info(f"Loading cart view for user {request.user}")
         return render(request, 'cart/cart_detail.html', {'cart': cart_obj})
 
@@ -22,12 +23,9 @@ class CartView(LoginRequiredMixin, View):
 class AddToCartView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
-        cart = Cart.objects.get(user=request.user)
-        product = Product.objects.get(slug=kwargs.get('slug'))
-        cart_product, created = CartProduct.objects.get_or_create(
-            user=cart.user, cart=cart, product=product,
-            overall_price=product.price
-        )
+        cart = asyncio.run(get_cart(request.user))
+        product = asyncio.run(get_product(kwargs.get('slug')))
+        cart_product, created = asyncio.run(get_or_create_cart_product(cart, product))
         if created:
             cart.products.add(cart_product)
         else:
@@ -41,11 +39,9 @@ class AddToCartView(LoginRequiredMixin, View):
 class DeleteFromCartView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
-        cart = Cart.objects.get(user=request.user)
-        product = Product.objects.get(slug=kwargs.get('slug'))
-        cart_product = CartProduct.objects.get(
-            user=cart.user, cart=cart, product=product
-        )
+        cart = asyncio.run(get_cart(request.user))
+        product = asyncio.run(get_product(kwargs.get('slug')))
+        cart_product = asyncio.run(get_cart_product(cart, product))
         cart.products.remove(cart_product)
         cart_product.delete()
         update_cart(cart)
@@ -56,11 +52,9 @@ class DeleteFromCartView(LoginRequiredMixin, View):
 class ChangeQuantityInCart(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
-        cart = Cart.objects.get(user=request.user)
-        product = Product.objects.get(slug=kwargs.get('slug'))
-        cart_product = CartProduct.objects.get(
-            user=cart.user, cart=cart, product=product
-        )
+        cart = asyncio.run(get_cart(request.user))
+        product = asyncio.run(get_product(kwargs.get('slug')))
+        cart_product = asyncio.run(get_cart_product(cart, product))
         quantity = int(request.POST.get('quantity'))
         cart_product.quantity = quantity
         cart_product.save()

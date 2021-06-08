@@ -18,10 +18,14 @@
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
         <div class="search-bar">
             <form method="post" action="{% url 'products:search' %}">
-                {% csrf_token %}
-                <input name="search" id="search" class="form-control mr-sm-2" type="search"
-                       placeholder="Поиск" aria-label="Search">
-                <button class="btn btn-outline-dark pr-2" type="submit">Найти</button>
+                <div class="input-group">
+                    {% csrf_token %}
+                    <input name="search" id="search" class="form-control mr-sm-2" type="search"
+                           placeholder="Поиск" aria-label="Search" style="">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-dark pr-2" type="submit">Найти</button>
+                    </div>
+                </div>
             </form>
         </div>
         <ul class="navbar-nav">

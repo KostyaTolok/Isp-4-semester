@@ -4,6 +4,7 @@ from django.views.generic.detail import View, DetailView
 from .models import Product, Category
 from cart.models import Cart, CartProduct
 import asyncio
+from .async_requests import *
 import logging
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 class HomeView(View):
 
     def get(self, request):
-        products = Product.objects.all()
+        products = asyncio.run(get_products())
         logger.info("Home view loading")
         return render(request, 'shop/home.html', {'products': products})
 
@@ -22,13 +23,13 @@ class SearchView(View):
     def post(self, request):
         search = request.POST['search']
         logger.info(f"Searching for {search}")
-        products = Product.objects.filter(name__icontains=search)
+        products = asyncio.run(search_products(search))
         return render(request, 'shop/home.html', {'products': products})
 
 
 class ProductDetailView(DetailView):
     model = Product
-    queryset = Product.objects.all()
+    queryset = asyncio.run(get_products())
     template_name = 'shop/product_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -39,7 +40,7 @@ class ProductDetailView(DetailView):
 
 class CategoryDetailView(DetailView):
     model = Category
-    queryset = Category.objects.all()
+    queryset = asyncio.run(get_categories())
     template_name = "shop/category_detail.html"
 
     def get_context_data(self, **kwargs):
