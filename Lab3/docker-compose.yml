@@ -24,7 +24,5 @@ services:
       - eshop:/usr/src/eshop
     ports:
       - '8000:8000'
-    env_file:
-      - shop/.env
     depends_on:
       - eshopdb
