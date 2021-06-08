@@ -10,6 +10,6 @@
 Вход в аккаунт админа:
 
 ```
-super user email: admin@admin.com
-super user password: 123456
+email: admin@admin.com
+password: 123456
 ```
