@@ -132,7 +132,6 @@ dmypy.json
 
 #Formats
 *.json
-*.yml
 *.toml
 *.pickle
 
@@ -148,4 +147,3 @@ testing.py
 *.pyc
 __pycache__
 db.sqlite3
-media
